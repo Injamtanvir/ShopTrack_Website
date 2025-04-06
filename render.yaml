@@ -1,0 +1,6 @@
+services:
+  - type: web
+    name: shoptrack-website
+    runtime: static
+    buildCommand: null  # Or your build command if needed
+    staticPublishPath: .  # Or the directory where your static files are
