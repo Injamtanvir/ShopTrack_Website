@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ShopTrack Invoice Viewer</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <span class="logo-part-1">Shop</span><span class="logo-part-2">Track</span>
+            </div>
+            <h1>Invoice Viewer</h1>
+        </header>
+        
+        <div class="search-container">
+            <div class="form-group">
+                <label for="shopId">Shop ID</label>
+                <input type="text" id="shopId" placeholder="Enter Shop ID" required>
+            </div>
+            <div class="form-group">
+                <label for="invoiceNumber">Invoice Number</label>
+                <input type="text" id="invoiceNumber" placeholder="Enter Invoice Number" required>
+            </div>
+            <button id="viewInvoiceBtn">View Invoice</button>
+        </div>
+        
+        <div id="errorMessage" class="error-message"></div>
+        
+        <div id="loadingIndicator" class="loading-indicator">
+            <div class="spinner"></div>
+            <p>Loading invoice...</p>
+        </div>
+        
+        <div id="invoiceContainer" class="invoice-container">
+            <!-- Invoice will be displayed here -->
+        </div>
+    </div>
+    
+    <footer>
+        <p>&copy; 2024 ShopTrack. All rights reserved.</p>
+    </footer>
+    
+    <script src="script.js"></script>
+</body>
+</html>
