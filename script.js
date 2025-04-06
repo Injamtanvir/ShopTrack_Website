@@ -7,7 +7,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const invoiceContainer = document.getElementById('invoiceContainer');
     
     // URL of your backend API that serves invoice data
-    const API_BASE_URL = 'https://shoptrack-w8wu.onrender.com/api/';
+    const API_BASE_URL = 'https://shoptrack-w8wu.onrender.com/api';
     
     viewInvoiceBtn.addEventListener('click', function() {
         const shopId = shopIdInput.value.trim();
