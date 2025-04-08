@@ -543,11 +543,7 @@
     <script>
         // Base URL for the API - change this to your actual API URL
         const baseApiUrl = 'https://shoptrack-w8wu.onrender.com/api'; // This should be replaced with the actual backend URL
-
         
-
-
-
         // DOM Elements
         const invoiceForm = document.getElementById('invoiceForm');
         const errorAlert = document.getElementById('errorAlert');
@@ -607,146 +603,110 @@
             })();
         }
         
-        // function displayInvoice(invoice) {
-        //     // Display invoice number and date
-        //     document.getElementById('displayInvoiceNumber').textContent = `Invoice #${invoice.invoice_number}`;
-            
-        //     // Format date
-        //     const invoiceDate = new Date(invoice.date);
-        //     const formattedDate = invoiceDate.toLocaleDateString('en-US', {
-        //         year: 'numeric',
-        //         month: 'long',
-        //         day: 'numeric'
-        //     });
-        //     document.getElementById('displayDate').textContent = `Date: ${formattedDate}`;
-            
-        //     // Display shop info
-        //     document.getElementById('shopInfo').innerHTML = `
-        //         <div>${invoice.shop_name}</div>
-        //         <div>${invoice.shop_address}</div>
-        //         <div>License: ${invoice.shop_license}</div>
-        //     `;
-            
-        //     // Display customer info
-        //     document.getElementById('customerInfo').innerHTML = `
-        //         <div>${invoice.customer_name}</div>
-        //         <div>${invoice.customer_address || 'No address provided'}</div>
-        //     `;
-            
-        //     // Display invoice items
-        //     const invoiceItemsElement = document.getElementById('invoiceItems');
-        //     invoiceItemsElement.innerHTML = '';
-            
-        //     invoice.items.forEach(item => {
-        //         const row = document.createElement('tr');
-        //         const formattedPrice = formatCurrency(item.price);
-        //         const formattedTotal = formatCurrency(item.price * item.quantity);
-                
-        //         row.innerHTML = `
-        //             <td>${item.name}</td>
-        //             <td>${item.quantity}</td>
-        //             <td>${formattedPrice}</td>
-        //             <td>${formattedTotal}</td>
-        //         `;
-                
-        //         invoiceItemsElement.appendChild(row);
-        //     });
-            
-        //     // Display subtotal, discount and total
-        //     document.getElementById('subtotal').textContent = formatCurrency(invoice.subtotal_amount);
-        //     document.getElementById('discount').textContent = formatCurrency(invoice.discount_amount);
-        //     document.getElementById('total').textContent = formatCurrency(invoice.total_amount);
-            
-        //     // Hide form and show invoice
-        //     lookupForm.style.display = 'none';
-        //     invoiceContainer.style.display = 'block';
-        // }
-
-
         function displayInvoice(invoice) {
-    // Display invoice number and date
-        document.getElementById('displayInvoiceNumber').textContent = `Invoice #${invoice.invoice_number}`;
-        
-        // Format date
-        const invoiceDate = new Date(invoice.date);
-        const formattedDate = invoiceDate.toLocaleDateString('en-US', {
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric'
-        });
-        document.getElementById('displayDate').textContent = `Date: ${formattedDate}`;
-        
-        // Display shop info
-        document.getElementById('shopInfo').innerHTML = `
-            <div>${invoice.shop_name}</div>
-            <div>${invoice.shop_address}</div>
-            <div>License: ${invoice.shop_license}</div>
-        `;
-        
-        // Display customer info
-        document.getElementById('customerInfo').innerHTML = `
-            <div>${invoice.customer_name}</div>
-            <div>${invoice.customer_address || 'No address provided'}</div>
-        `;
-        
-        // Display invoice items
-        const invoiceItemsElement = document.getElementById('invoiceItems');
-        invoiceItemsElement.innerHTML = '';
-        
-        invoice.items.forEach(item => {
-            const row = document.createElement('tr');
-            // Ensure price is treated as a number
-            const itemPrice = parseFloat(item.price) || 0;
-            const itemQuantity = parseFloat(item.quantity) || 0;
-            const itemTotal = itemPrice * itemQuantity;
+            // Display invoice number and date
+            document.getElementById('displayInvoiceNumber').textContent = `Invoice #${invoice.invoice_number}`;
             
-            const formattedPrice = formatCurrency(itemPrice);
-            const formattedTotal = formatCurrency(itemTotal);
+            // Format date
+            const invoiceDate = new Date(invoice.date);
+            const formattedDate = invoiceDate.toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+            document.getElementById('displayDate').textContent = `Date: ${formattedDate}`;
             
-            row.innerHTML = `
-                <td>${item.name}</td>
-                <td>${item.quantity}</td>
-                <td>${formattedPrice}</td>
-                <td>${formattedTotal}</td>
+            // Display shop info
+            document.getElementById('shopInfo').innerHTML = `
+                <div>${invoice.shop_name}</div>
+                <div>${invoice.shop_address || ''}</div>
+                <div>License: ${invoice.shop_license || ''}</div>
             `;
             
-            invoiceItemsElement.appendChild(row);
-        });
+            // Display customer info
+            document.getElementById('customerInfo').innerHTML = `
+                <div>${invoice.customer_name || 'Not specified'}</div>
+                <div>${invoice.customer_address || 'No address provided'}</div>
+            `;
+            
+            // Display invoice items
+            const invoiceItemsElement = document.getElementById('invoiceItems');
+            invoiceItemsElement.innerHTML = '';
+            
+            if (Array.isArray(invoice.items)) {
+                invoice.items.forEach(item => {
+                    const row = document.createElement('tr');
+                    
+                    // Check if price and quantity are valid numbers and convert them if needed
+                    const price = parseNumericValue(item.price);
+                    const quantity = parseNumericValue(item.quantity);
+                    const itemTotal = price * quantity;
+                    
+                    const formattedPrice = formatCurrency(price);
+                    const formattedTotal = formatCurrency(itemTotal);
+                    
+                    row.innerHTML = `
+                        <td>${item.name || 'Unknown Item'}</td>
+                        <td>${quantity}</td>
+                        <td>${formattedPrice}</td>
+                        <td>${formattedTotal}</td>
+                    `;
+                    
+                    invoiceItemsElement.appendChild(row);
+                });
+            } else {
+                // Handle case where items is not an array
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td colspan="4" style="text-align: center;">No items found</td>
+                `;
+                invoiceItemsElement.appendChild(row);
+            }
+            
+            // Display subtotal, discount and total
+            const subtotal = parseNumericValue(invoice.subtotal_amount);
+            const discount = parseNumericValue(invoice.discount_amount);
+            const total = parseNumericValue(invoice.total_amount);
+            
+            document.getElementById('subtotal').textContent = formatCurrency(subtotal);
+            document.getElementById('discount').textContent = formatCurrency(discount);
+            document.getElementById('total').textContent = formatCurrency(total);
+            
+            // Hide form and show invoice
+            lookupForm.style.display = 'none';
+            invoiceContainer.style.display = 'block';
+        }
         
-        // Display subtotal, discount and total - ensure these are treated as numbers
-        document.getElementById('subtotal').textContent = formatCurrency(parseFloat(invoice.subtotal_amount) || 0);
-        document.getElementById('discount').textContent = formatCurrency(parseFloat(invoice.discount_amount) || 0);
-        document.getElementById('total').textContent = formatCurrency(parseFloat(invoice.total_amount) || 0);
-        
-        // Hide form and show invoice
-        lookupForm.style.display = 'none';
-        invoiceContainer.style.display = 'block';
-    }
-
-    // Also ensure the currency formatting function handles non-numbers gracefully
-    function formatCurrency(amount) {
-        // Ensure amount is a number
-        amount = parseFloat(amount);
-        if (isNaN(amount)) amount = 0;
-        
-        return new Intl.NumberFormat('en-US', {
-            style: 'currency',
-            currency: 'USD'
-        }).format(amount);
-    }
-
-
-        
-        function showError(message) {
-            errorAlert.textContent = message;
-            errorAlert.style.display = 'block';
+        function parseNumericValue(value) {
+            // Convert string values to numbers and handle invalid values
+            if (value === null || value === undefined || value === '') {
+                return 0;
+            }
+            
+            if (typeof value === 'string') {
+                // Remove any non-numeric characters except decimal point
+                value = value.replace(/[^\d.-]/g, '');
+            }
+            
+            const parsed = parseFloat(value);
+            return isNaN(parsed) ? 0 : parsed;
         }
         
         function formatCurrency(amount) {
+            // Handle invalid values
+            if (isNaN(amount) || amount === null || amount === undefined) {
+                amount = 0;
+            }
+            
             return new Intl.NumberFormat('en-US', {
                 style: 'currency',
                 currency: 'USD'
             }).format(amount);
+        }
+        
+        function showError(message) {
+            errorAlert.textContent = message;
+            errorAlert.style.display = 'block';
         }
         
         function backToForm() {
@@ -790,6 +750,16 @@
                 } else {
                     originalConsole.error.apply(console, ["Console errors are restricted"]);
                 }
+            };
+
+            // Debug mode for troubleshooting
+            window.enableDebug = function() {
+                // Restore original console functions
+                console.log = originalConsole.log;
+                console.info = originalConsole.info;
+                console.warn = originalConsole.warn;
+                console.error = originalConsole.error;
+                alert('Debug mode enabled');
             };
 
             // Hide the actual API URL even in network requests by using a service worker
