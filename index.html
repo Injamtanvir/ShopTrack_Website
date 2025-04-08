@@ -3,47 +3,734 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ShopTrack Invoice Viewer</title>
-    <link rel="stylesheet" href="styles.css">
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <title>ShopTrack - Invoice Viewer</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --primary-dark: #4338ca;
+            --secondary: #8b5cf6;
+            --accent: #3b82f6;
+            --light: #f9fafb;
+            --dark: #1f2937;
+            --success: #10b981;
+            --error: #ef4444;
+            --warning: #f59e0b;
+            --gray-light: #f3f4f6;
+            --gray: #9ca3af;
+            --border-radius: 12px;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-sans);
+            background-color: #f5f7fb;
+            color: var(--dark);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header Styles */
+        header {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 1.5rem 0;
+            box-shadow: var(--shadow);
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 1.8rem;
+            font-weight: bold;
+        }
+
+        .logo i {
+            font-size: 2rem;
+        }
+
+        /* Form Styles */
+        .lookup-form-container {
+            background-color: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            margin: 2rem auto;
+            max-width: 600px;
+            padding: 2rem;
+            transition: transform 0.3s ease;
+        }
+
+        .lookup-form-container:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .lookup-title {
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+            color: var(--primary);
+            text-align: center;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--dark);
+        }
+
+        input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            font-size: 1rem;
+            border: 1px solid var(--gray);
+            border-radius: calc(var(--border-radius) / 2);
+            background-color: white;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.2);
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 0.75rem 1.5rem;
+            font-size: 1rem;
+            font-weight: 500;
+            text-align: center;
+            text-decoration: none;
+            cursor: pointer;
+            border: none;
+            border-radius: calc(var(--border-radius) / 2);
+            transition: background-color 0.2s, transform 0.1s;
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-dark);
+        }
+
+        .btn-primary:active {
+            transform: translateY(1px);
+        }
+
+        .btn-block {
+            display: block;
+            width: 100%;
+        }
+
+        /* Loading Spinner */
+        .spinner {
+            display: none;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top: 3px solid white;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+            margin-left: 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .button-content {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* Alert Styles */
+        .alert {
+            padding: 1rem;
+            border-radius: var(--border-radius);
+            margin-bottom: 1.5rem;
+            display: none;
+        }
+
+        .alert-error {
+            background-color: rgba(239, 68, 68, 0.1);
+            color: var(--error);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+        }
+
+        /* Invoice Display Styles */
+        .invoice-container {
+            background-color: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            margin: 2rem auto;
+            max-width: 800px;
+            padding: 2rem;
+            display: none;
+        }
+
+        .invoice-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--gray-light);
+        }
+
+        .invoice-title {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .invoice-id {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: var(--primary);
+        }
+
+        .invoice-date {
+            color: var(--gray);
+            margin-top: 0.5rem;
+        }
+
+        .shop-info, .customer-info {
+            margin-bottom: 1.5rem;
+        }
+
+        .info-title {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .info-content {
+            color: var(--dark);
+        }
+
+        .invoice-items {
+            margin: 2rem 0;
+        }
+
+        .invoice-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .invoice-table th {
+            background-color: var(--gray-light);
+            padding: 0.75rem 1rem;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        .invoice-table td {
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid var(--gray-light);
+        }
+
+        .invoice-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .invoice-summary {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            margin-top: 2rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--gray-light);
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            width: 300px;
+            margin-bottom: 0.5rem;
+        }
+
+        .summary-row.total {
+            font-weight: bold;
+            font-size: 1.2rem;
+            color: var(--primary);
+            padding-top: 0.5rem;
+            margin-top: 0.5rem;
+            border-top: 1px solid var(--gray-light);
+        }
+
+        .invoice-footer {
+            text-align: center;
+            margin-top: 2rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--gray-light);
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+
+        .action-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            color: var(--primary);
+            border: 1px solid var(--primary);
+        }
+
+        .btn-outline:hover {
+            background-color: rgba(79, 70, 229, 0.1);
+        }
+
+        /* Footer Styles */
+        footer {
+            background-color: var(--dark);
+            color: white;
+            padding: 3rem 0;
+            margin-top: 2rem;
+        }
+
+        .footer-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .footer-logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+        }
+
+        .footer-links {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        .footer-links li {
+            margin-bottom: 0.5rem;
+        }
+
+        .footer-links a {
+            color: var(--gray);
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .footer-links a:hover {
+            color: white;
+        }
+
+        .copyright {
+            width: 100%;
+            text-align: center;
+            margin-top: 2rem;
+            padding-top: 1rem;
+            border-top: 1px solid rgba(156, 163, 175, 0.3);
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+
+        /* Responsive Styles */
+        @media (max-width: 768px) {
+            .header-content, .footer-content {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .invoice-header {
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
+            }
+
+            .invoice-date {
+                margin-top: 1rem;
+            }
+
+            .summary-row {
+                width: 100%;
+            }
+        }
+
+        /* Print Styles */
+        @media print {
+            header, footer, .lookup-form-container, .action-buttons {
+                display: none;
+            }
+
+            .invoice-container {
+                display: block;
+                box-shadow: none;
+                margin: 0;
+                max-width: 100%;
+            }
+
+            body {
+                background-color: white;
+            }
+        }
+    </style>
 </head>
 <body>
-    <div class="container">
-        <header>
-            <div class="logo">
-                <span class="logo-part-1">Shop</span><span class="logo-part-2">Track</span>
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <i class="fas fa-receipt"></i>
+                    <span>ShopTrack</span>
+                </div>
+                <div class="header-subtitle">
+                    Invoice Management System
+                </div>
             </div>
-            <h1>Invoice Viewer</h1>
-        </header>
-        
-        <div class="search-container">
-            <div class="form-group">
-                <label for="shopId">Shop ID</label>
-                <input type="text" id="shopId" placeholder="Enter Shop ID" required>
+        </div>
+    </header>
+
+    <main class="container">
+        <div class="lookup-form-container" id="lookupForm">
+            <h2 class="lookup-title">Invoice Lookup</h2>
+            <div class="alert alert-error" id="errorAlert"></div>
+            <form id="invoiceForm">
+                <div class="form-group">
+                    <label for="shopId">Shop ID</label>
+                    <input type="text" id="shopId" name="shopId" placeholder="Enter 8-digit Shop ID" required>
+                </div>
+                <div class="form-group">
+                    <label for="invoiceNumber">Invoice Number</label>
+                    <input type="text" id="invoiceNumber" name="invoiceNumber" placeholder="Enter 6-digit Invoice Number" required>
+                </div>
+                <button type="submit" class="btn btn-primary btn-block">
+                    <div class="button-content">
+                        <span>Find Invoice</span>
+                        <div class="spinner" id="loadingSpinner"></div>
+                    </div>
+                </button>
+            </form>
+        </div>
+
+        <div class="invoice-container" id="invoiceContainer">
+            <div class="invoice-header">
+                <div class="invoice-title">
+                    <div class="invoice-id" id="displayInvoiceNumber"></div>
+                    <div class="invoice-date" id="displayDate"></div>
+                </div>
+                <div class="logo">
+                    <i class="fas fa-receipt"></i>
+                    <span>ShopTrack</span>
+                </div>
             </div>
-            <div class="form-group">
-                <label for="invoiceNumber">Invoice Number</label>
-                <input type="text" id="invoiceNumber" placeholder="Enter Invoice Number" required>
+
+            <div class="shop-info">
+                <div class="info-title">Shop Information</div>
+                <div class="info-content" id="shopInfo"></div>
             </div>
-            <button id="viewInvoiceBtn">View Invoice</button>
+
+            <div class="customer-info">
+                <div class="info-title">Customer Information</div>
+                <div class="info-content" id="customerInfo"></div>
+            </div>
+
+            <div class="invoice-items">
+                <table class="invoice-table">
+                    <thead>
+                        <tr>
+                            <th>Item</th>
+                            <th>Qty</th>
+                            <th>Price</th>
+                            <th>Total</th>
+                        </tr>
+                    </thead>
+                    <tbody id="invoiceItems">
+                        <!-- Items will be added here dynamically -->
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="invoice-summary">
+                <div class="summary-row">
+                    <div>Subtotal:</div>
+                    <div id="subtotal"></div>
+                </div>
+                <div class="summary-row">
+                    <div>Discount:</div>
+                    <div id="discount"></div>
+                </div>
+                <div class="summary-row total">
+                    <div>Total:</div>
+                    <div id="total"></div>
+                </div>
+            </div>
+
+            <div class="invoice-footer">
+                Thank you for your business!
+            </div>
+
+            <div class="action-buttons">
+                <button class="btn btn-primary" onclick="window.print()">
+                    <i class="fas fa-print"></i> Print Invoice
+                </button>
+                <button class="btn btn-outline" onclick="backToForm()">
+                    <i class="fas fa-arrow-left"></i> Back to Search
+                </button>
+            </div>
         </div>
-        
-        <div id="errorMessage" class="error-message"></div>
-        
-        <div id="loadingIndicator" class="loading-indicator">
-            <div class="spinner"></div>
-            <p>Loading invoice...</p>
-        </div>
-        
-        <div id="invoiceContainer" class="invoice-container">
-            <!-- Invoice will be displayed here -->
-        </div>
-    </div>
-    
+    </main>
+
     <footer>
-        <p>&copy; 2024 ShopTrack. All rights reserved.</p>
+        <div class="container">
+            <div class="footer-content">
+                <div>
+                    <div class="footer-logo">
+                        <i class="fas fa-receipt"></i> ShopTrack
+                    </div>
+                    <p>Streamline your shop operations with our comprehensive invoicing solution.</p>
+                </div>
+                <div>
+                    <h3>Quick Links</h3>
+                    <ul class="footer-links">
+                        <li><a href="#">Home</a></li>
+                        <li><a href="#">Features</a></li>
+                        <li><a href="#">Pricing</a></li>
+                        <li><a href="#">Contact</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3>Legal</h3>
+                    <ul class="footer-links">
+                        <li><a href="#">Privacy Policy</a></li>
+                        <li><a href="#">Terms of Service</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="copyright">
+                &copy; 2025 ShopTrack. All rights reserved.
+            </div>
+        </div>
     </footer>
-    
-    <script src="script.js"></script>
+
+    <script>
+        // Base URL for the API - change this to your actual API URL
+        const baseApiUrl = 'https://shoptrack-w8wu.onrender.com/api'; // This should be replaced with the actual backend URL
+
+        
+
+
+
+        // DOM Elements
+        const invoiceForm = document.getElementById('invoiceForm');
+        const errorAlert = document.getElementById('errorAlert');
+        const loadingSpinner = document.getElementById('loadingSpinner');
+        const lookupForm = document.getElementById('lookupForm');
+        const invoiceContainer = document.getElementById('invoiceContainer');
+        
+        // Event Listeners
+        invoiceForm.addEventListener('submit', fetchInvoice);
+        
+        // Functions
+        function fetchInvoice(event) {
+            event.preventDefault();
+            
+            // Show loading spinner
+            loadingSpinner.style.display = 'block';
+            errorAlert.style.display = 'none';
+            
+            // Get form data
+            const shopId = document.getElementById('shopId').value.trim();
+            const invoiceNumber = document.getElementById('invoiceNumber').value.trim();
+            
+            // Validate input
+            if (!shopId || !invoiceNumber) {
+                showError('Please enter both Shop ID and Invoice Number');
+                loadingSpinner.style.display = 'none';
+                return;
+            }
+            
+            // Fetch invoice data from the API
+            // Use a closure to prevent URL leakage in error messages
+            (async function() {
+                try {
+                    // Encode parameters to prevent injection
+                    const params = new URLSearchParams({
+                        shop_id: shopId,
+                        invoice_number: invoiceNumber
+                    });
+                    
+                    const response = await fetch(`${baseApiUrl}/public-invoice/?${params}`);
+                    
+                    if (!response.ok) {
+                        if (response.status === 404) {
+                            throw new Error('Invoice not found. Please check your Shop ID and Invoice Number.');
+                        } else {
+                            throw new Error('An error occurred while fetching the invoice.');
+                        }
+                    }
+                    
+                    const data = await response.json();
+                    displayInvoice(data);
+                } catch (error) {
+                    showError(error.message);
+                } finally {
+                    loadingSpinner.style.display = 'none';
+                }
+            })();
+        }
+        
+        function displayInvoice(invoice) {
+            // Display invoice number and date
+            document.getElementById('displayInvoiceNumber').textContent = `Invoice #${invoice.invoice_number}`;
+            
+            // Format date
+            const invoiceDate = new Date(invoice.date);
+            const formattedDate = invoiceDate.toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+            document.getElementById('displayDate').textContent = `Date: ${formattedDate}`;
+            
+            // Display shop info
+            document.getElementById('shopInfo').innerHTML = `
+                <div>${invoice.shop_name}</div>
+                <div>${invoice.shop_address}</div>
+                <div>License: ${invoice.shop_license}</div>
+            `;
+            
+            // Display customer info
+            document.getElementById('customerInfo').innerHTML = `
+                <div>${invoice.customer_name}</div>
+                <div>${invoice.customer_address || 'No address provided'}</div>
+            `;
+            
+            // Display invoice items
+            const invoiceItemsElement = document.getElementById('invoiceItems');
+            invoiceItemsElement.innerHTML = '';
+            
+            invoice.items.forEach(item => {
+                const row = document.createElement('tr');
+                const formattedPrice = formatCurrency(item.price);
+                const formattedTotal = formatCurrency(item.price * item.quantity);
+                
+                row.innerHTML = `
+                    <td>${item.name}</td>
+                    <td>${item.quantity}</td>
+                    <td>${formattedPrice}</td>
+                    <td>${formattedTotal}</td>
+                `;
+                
+                invoiceItemsElement.appendChild(row);
+            });
+            
+            // Display subtotal, discount and total
+            document.getElementById('subtotal').textContent = formatCurrency(invoice.subtotal_amount);
+            document.getElementById('discount').textContent = formatCurrency(invoice.discount_amount);
+            document.getElementById('total').textContent = formatCurrency(invoice.total_amount);
+            
+            // Hide form and show invoice
+            lookupForm.style.display = 'none';
+            invoiceContainer.style.display = 'block';
+        }
+        
+        function showError(message) {
+            errorAlert.textContent = message;
+            errorAlert.style.display = 'block';
+        }
+        
+        function formatCurrency(amount) {
+            return new Intl.NumberFormat('en-US', {
+                style: 'currency',
+                currency: 'USD'
+            }).format(amount);
+        }
+        
+        function backToForm() {
+            invoiceContainer.style.display = 'none';
+            lookupForm.style.display = 'block';
+        }
+
+        // Security measures
+        // 1. Prevent DevTools usage detection
+        function securityMeasures() {
+            // Store original console methods
+            const originalConsole = {
+                log: console.log,
+                info: console.info,
+                warn: console.warn,
+                error: console.error
+            };
+
+            // Override console methods to detect potential debugging
+            console.log = function() {
+                // Allow certain logs for normal operation
+                if (arguments[0]?.includes && arguments[0].includes('React')) {
+                    originalConsole.log.apply(console, arguments);
+                    return;
+                }
+                originalConsole.log.apply(console, ["Console logging is restricted"]);
+            };
+
+            console.info = function() { 
+                originalConsole.info.apply(console, ["Console info is restricted"]);
+            };
+            
+            console.warn = function() {
+                originalConsole.warn.apply(console, ["Console warnings are restricted"]);
+            };
+            
+            console.error = function(error) {
+                // Allow error reporting without exposing details
+                if (error && error.toString) {
+                    originalConsole.error.apply(console, ["An error occurred"]);
+                } else {
+                    originalConsole.error.apply(console, ["Console errors are restricted"]);
+                }
+            };
+
+            // Hide the actual API URL even in network requests by using a service worker
+            if ('serviceWorker' in navigator) {
+                window.addEventListener('load', () => {
+                    navigator.serviceWorker.register('/sw.js').then(registration => {
+                        console.log('ServiceWorker registration successful');
+                    }).catch(err => {
+                        console.log('ServiceWorker registration failed');
+                    });
+                });
+            }
+        }
+
+        // Apply security measures
+        securityMeasures();
+    </script>
 </body>
 </html>
