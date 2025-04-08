@@ -607,60 +607,135 @@
             })();
         }
         
+        // function displayInvoice(invoice) {
+        //     // Display invoice number and date
+        //     document.getElementById('displayInvoiceNumber').textContent = `Invoice #${invoice.invoice_number}`;
+            
+        //     // Format date
+        //     const invoiceDate = new Date(invoice.date);
+        //     const formattedDate = invoiceDate.toLocaleDateString('en-US', {
+        //         year: 'numeric',
+        //         month: 'long',
+        //         day: 'numeric'
+        //     });
+        //     document.getElementById('displayDate').textContent = `Date: ${formattedDate}`;
+            
+        //     // Display shop info
+        //     document.getElementById('shopInfo').innerHTML = `
+        //         <div>${invoice.shop_name}</div>
+        //         <div>${invoice.shop_address}</div>
+        //         <div>License: ${invoice.shop_license}</div>
+        //     `;
+            
+        //     // Display customer info
+        //     document.getElementById('customerInfo').innerHTML = `
+        //         <div>${invoice.customer_name}</div>
+        //         <div>${invoice.customer_address || 'No address provided'}</div>
+        //     `;
+            
+        //     // Display invoice items
+        //     const invoiceItemsElement = document.getElementById('invoiceItems');
+        //     invoiceItemsElement.innerHTML = '';
+            
+        //     invoice.items.forEach(item => {
+        //         const row = document.createElement('tr');
+        //         const formattedPrice = formatCurrency(item.price);
+        //         const formattedTotal = formatCurrency(item.price * item.quantity);
+                
+        //         row.innerHTML = `
+        //             <td>${item.name}</td>
+        //             <td>${item.quantity}</td>
+        //             <td>${formattedPrice}</td>
+        //             <td>${formattedTotal}</td>
+        //         `;
+                
+        //         invoiceItemsElement.appendChild(row);
+        //     });
+            
+        //     // Display subtotal, discount and total
+        //     document.getElementById('subtotal').textContent = formatCurrency(invoice.subtotal_amount);
+        //     document.getElementById('discount').textContent = formatCurrency(invoice.discount_amount);
+        //     document.getElementById('total').textContent = formatCurrency(invoice.total_amount);
+            
+        //     // Hide form and show invoice
+        //     lookupForm.style.display = 'none';
+        //     invoiceContainer.style.display = 'block';
+        // }
+
+
         function displayInvoice(invoice) {
-            // Display invoice number and date
-            document.getElementById('displayInvoiceNumber').textContent = `Invoice #${invoice.invoice_number}`;
+    // Display invoice number and date
+        document.getElementById('displayInvoiceNumber').textContent = `Invoice #${invoice.invoice_number}`;
+        
+        // Format date
+        const invoiceDate = new Date(invoice.date);
+        const formattedDate = invoiceDate.toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+        });
+        document.getElementById('displayDate').textContent = `Date: ${formattedDate}`;
+        
+        // Display shop info
+        document.getElementById('shopInfo').innerHTML = `
+            <div>${invoice.shop_name}</div>
+            <div>${invoice.shop_address}</div>
+            <div>License: ${invoice.shop_license}</div>
+        `;
+        
+        // Display customer info
+        document.getElementById('customerInfo').innerHTML = `
+            <div>${invoice.customer_name}</div>
+            <div>${invoice.customer_address || 'No address provided'}</div>
+        `;
+        
+        // Display invoice items
+        const invoiceItemsElement = document.getElementById('invoiceItems');
+        invoiceItemsElement.innerHTML = '';
+        
+        invoice.items.forEach(item => {
+            const row = document.createElement('tr');
+            // Ensure price is treated as a number
+            const itemPrice = parseFloat(item.price) || 0;
+            const itemQuantity = parseFloat(item.quantity) || 0;
+            const itemTotal = itemPrice * itemQuantity;
             
-            // Format date
-            const invoiceDate = new Date(invoice.date);
-            const formattedDate = invoiceDate.toLocaleDateString('en-US', {
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric'
-            });
-            document.getElementById('displayDate').textContent = `Date: ${formattedDate}`;
+            const formattedPrice = formatCurrency(itemPrice);
+            const formattedTotal = formatCurrency(itemTotal);
             
-            // Display shop info
-            document.getElementById('shopInfo').innerHTML = `
-                <div>${invoice.shop_name}</div>
-                <div>${invoice.shop_address}</div>
-                <div>License: ${invoice.shop_license}</div>
+            row.innerHTML = `
+                <td>${item.name}</td>
+                <td>${item.quantity}</td>
+                <td>${formattedPrice}</td>
+                <td>${formattedTotal}</td>
             `;
             
-            // Display customer info
-            document.getElementById('customerInfo').innerHTML = `
-                <div>${invoice.customer_name}</div>
-                <div>${invoice.customer_address || 'No address provided'}</div>
-            `;
-            
-            // Display invoice items
-            const invoiceItemsElement = document.getElementById('invoiceItems');
-            invoiceItemsElement.innerHTML = '';
-            
-            invoice.items.forEach(item => {
-                const row = document.createElement('tr');
-                const formattedPrice = formatCurrency(item.price);
-                const formattedTotal = formatCurrency(item.price * item.quantity);
-                
-                row.innerHTML = `
-                    <td>${item.name}</td>
-                    <td>${item.quantity}</td>
-                    <td>${formattedPrice}</td>
-                    <td>${formattedTotal}</td>
-                `;
-                
-                invoiceItemsElement.appendChild(row);
-            });
-            
-            // Display subtotal, discount and total
-            document.getElementById('subtotal').textContent = formatCurrency(invoice.subtotal_amount);
-            document.getElementById('discount').textContent = formatCurrency(invoice.discount_amount);
-            document.getElementById('total').textContent = formatCurrency(invoice.total_amount);
-            
-            // Hide form and show invoice
-            lookupForm.style.display = 'none';
-            invoiceContainer.style.display = 'block';
-        }
+            invoiceItemsElement.appendChild(row);
+        });
+        
+        // Display subtotal, discount and total - ensure these are treated as numbers
+        document.getElementById('subtotal').textContent = formatCurrency(parseFloat(invoice.subtotal_amount) || 0);
+        document.getElementById('discount').textContent = formatCurrency(parseFloat(invoice.discount_amount) || 0);
+        document.getElementById('total').textContent = formatCurrency(parseFloat(invoice.total_amount) || 0);
+        
+        // Hide form and show invoice
+        lookupForm.style.display = 'none';
+        invoiceContainer.style.display = 'block';
+    }
+
+    // Also ensure the currency formatting function handles non-numbers gracefully
+    function formatCurrency(amount) {
+        // Ensure amount is a number
+        amount = parseFloat(amount);
+        if (isNaN(amount)) amount = 0;
+        
+        return new Intl.NumberFormat('en-US', {
+            style: 'currency',
+            currency: 'USD'
+        }).format(amount);
+    }
+
+
         
         function showError(message) {
             errorAlert.textContent = message;
