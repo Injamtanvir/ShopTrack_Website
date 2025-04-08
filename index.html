@@ -637,19 +637,20 @@
                     const row = document.createElement('tr');
                     
                     // Check if price and quantity are valid numbers and convert them if needed
-                    const price = parseNumericValue(item.unit_price);
+                    
                     const quantity = parseNumericValue(item.quantity);
                     // const itemTotal = price * quantity;
-                    const itemTotal = parseNumericValue(item.total_price);
+                    const price = parseNumericValue(item.unit_price);
+                    const total_price = parseNumericValue(item.total_price);
                     
                     // const formattedPrice = formatCurrency(price);
-                    const formattedTotal = formatCurrency(itemTotal);
+                    // const formattedTotal = formatCurrency(itemTotal);
                     
                     row.innerHTML = `
-                        <td>${item.name || 'Unknown Item'}</td>
+                        <td>${item.name}</td>
                         <td>${quantity}</td>
                         <td>${price}</td>
-                        <td>${formattedTotal}</td>
+                        <td>${total_price}</td>
                     `;
                     
                     invoiceItemsElement.appendChild(row);
