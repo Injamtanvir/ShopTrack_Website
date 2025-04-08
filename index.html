@@ -620,7 +620,6 @@
             document.getElementById('shopInfo').innerHTML = `
                 <div>${invoice.shop_name}</div>
                 <div>${invoice.shop_address || ''}</div>
-                <div>License: ${invoice.shop_license || ''}</div>
             `;
             
             // Display customer info
@@ -642,13 +641,13 @@
                     const quantity = parseNumericValue(item.quantity);
                     const itemTotal = price * quantity;
                     
-                    const formattedPrice = formatCurrency(price);
+                    // const formattedPrice = formatCurrency(price);
                     const formattedTotal = formatCurrency(itemTotal);
                     
                     row.innerHTML = `
                         <td>${item.name || 'Unknown Item'}</td>
                         <td>${quantity}</td>
-                        <td>${formattedPrice}</td>
+                        <td>${price}</td>
                         <td>${formattedTotal}</td>
                     `;
                     
